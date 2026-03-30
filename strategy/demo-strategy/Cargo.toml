@@ -6,7 +6,7 @@ edition.workspace = true
 rust-version.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "demo strategy"
+description = "nautilus trader tester demo strategy"
 categories.workspace = true
 keywords.workspace = true
 documentation.workspace = true
@@ -14,6 +14,14 @@ repository.workspace = true
 homepage.workspace = true
 
 [dependencies]
+nautilus-core = { workspace = true }
+nautilus-model = { workspace = true, features = ["stubs"] }
+nautilus-common = { workspace = true }
+nautilus-trading = { workspace = true }
+
+rust_decimal = { workspace = true, features = ["serde"] }
+anyhow = { workspace = true }
+log = { workspace = true }
 
 [lints]
 workspace = true
