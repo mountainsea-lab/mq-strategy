@@ -25,3 +25,7 @@ log = { workspace = true }
 
 [lints]
 workspace = true
+
+[lib]
+name = "mq_strategy_common"
+crate-type = ["rlib", "cdylib"]
