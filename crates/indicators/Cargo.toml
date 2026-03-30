@@ -4,6 +4,9 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+nautilus-core = { workspace = true }
+nautilus-model = { workspace = true, features = ["stubs"] }
+nautilus-indicators = { workspace = true }
 
 [lints]
 workspace = true

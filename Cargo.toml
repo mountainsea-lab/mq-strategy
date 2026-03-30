@@ -12,4 +12,7 @@ members = [
 ]
 
 [workspace.dependencies]
+nautilus-core = { git = "https://github.com/nautechsystems/nautilus_trader.git", branch = "master" }
+nautilus-model = { git = "https://github.com/nautechsystems/nautilus_trader.git", branch = "master" }
+nautilus-indicators = { git = "https://github.com/nautechsystems/nautilus_trader.git", branch = "master" }
 
