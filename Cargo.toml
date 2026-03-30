@@ -16,3 +16,6 @@ nautilus-core = { git = "https://github.com/nautechsystems/nautilus_trader.git",
 nautilus-model = { git = "https://github.com/nautechsystems/nautilus_trader.git", branch = "master" }
 nautilus-indicators = { git = "https://github.com/nautechsystems/nautilus_trader.git", branch = "master" }
 
+anyhow = "^1.0.102"
+time = {version = "0.3", features = ["formatting", "parsing", "serde"]}
+log = "0.4.29"
