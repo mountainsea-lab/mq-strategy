@@ -4,9 +4,44 @@ use nautilus_indicators::volatility::atr::AverageTrueRange;
 use nautilus_model::{data::Bar, enums::PriceType};
 use std::fmt::Display;
 
-/// An indicator which calculates a Hull Moving Average (HMA) across a rolling
-/// window. The HMA, developed by Alan Hull, is an extremely fast and smooth
-/// moving average.
+/// An indicator that computes a normalized Average True Range (ATR) over a rolling window.
+///
+/// This indicator expresses market volatility in a dimensionless form by scaling
+/// the ATR relative to the current price (typically the close price).
+///
+/// # Formula
+/// text /// normalized_atr = ATR(n) / price ///
+///
+/// Where:
+/// - ATR(n) is the Average True Range over a window of length n
+/// - price is usually the closing price of the bar
+///
+/// # Description
+/// Unlike the raw ATR, which is price-dependent, this normalized version allows:
+/// - Comparing volatility across different instruments
+/// - Using consistent thresholds in multi-asset strategies
+/// - Improving robustness in position sizing and risk management
+///
+/// # Interpretation
+/// - Higher values indicate higher relative volatility
+/// - Lower values indicate more stable price movement
+///
+/// # Use Cases
+/// - Volatility filtering (e.g., avoid trading in low volatility regimes)
+/// - Dynamic stop-loss / take-profit scaling
+/// - Cross-asset strategy normalization
+///
+/// # Notes
+/// - If multiplied by 100, this can be interpreted as a percentage (ATRPercent)
+/// - Also commonly referred to as:
+/// - ATRRatio
+/// - RelativeATR
+///
+/// # References
+/// - J. Welles Wilder, New Concepts in Technical Trading Systems
+///
+/// # Warning
+/// Ensure the denominator (price) is non-zero to avoid division errors.
 #[repr(C)]
 #[derive(Debug)]
 pub struct ATRNormalized {
