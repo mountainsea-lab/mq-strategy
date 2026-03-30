@@ -1,0 +1,15 @@
+[workspace.lints.rust]
+unsafe_code = "forbid"
+
+[workspace]
+resolver = "2"
+members = [
+    "crates/common",
+    # -- Custom Indicators
+    "crates/indicators",
+    # -- Strategys
+    "strategy/sma-strategy"
+]
+
+[workspace.dependencies]
+
