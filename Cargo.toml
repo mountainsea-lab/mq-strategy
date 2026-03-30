@@ -6,16 +6,34 @@ resolver = "2"
 members = [
     "crates/common",
     # -- Custom Indicators
-    "crates/indicators",
+    "crates/indicators", "strategy/demo-strategy",
     # -- Strategys
     "strategy/sma-strategy"
 ]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.94.0"
+authors = ["mountainsea lab <w1999wtw3537@gmail.com>"]
+license = "Apache-2.0 license"
+readme = "README.md"
+description = "A nautilus trader customs indicators strategy"
+categories = ["indicators", "strategy", "nautilus_trader"]
+keywords = [
+    "nautilus_trader",
+    "indicators",
+    "strategys",
+]
+documentation = ""
+repository = "https://github.com/mountainsea-lab/mq-strategy.git"
+homepage = ""
+
 
 [workspace.dependencies]
 nautilus-core = { git = "https://github.com/nautechsystems/nautilus_trader.git", branch = "master" }
 nautilus-model = { git = "https://github.com/nautechsystems/nautilus_trader.git", branch = "master" }
 nautilus-indicators = { git = "https://github.com/nautechsystems/nautilus_trader.git", branch = "master" }
 
-anyhow = "^1.0.102"
 time = {version = "0.3", features = ["formatting", "parsing", "serde"]}
 log = "0.4.29"

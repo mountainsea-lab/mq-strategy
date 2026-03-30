@@ -1,7 +1,17 @@
 [package]
-name = "common"
-version = "0.1.0"
-edition = "2024"
+name = "mq-strategy-common"
+readme = ""
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+license.workspace = true
+description = "strategy common utils for strategy"
+categories.workspace = true
+keywords.workspace = true
+documentation.workspace = true
+repository.workspace = true
+homepage.workspace = true
 
 [dependencies]
 nautilus-model = { workspace = true, features = ["stubs"] }
@@ -11,3 +21,7 @@ log = {workspace = true}
 
 [lints]
 workspace = true
+
+[lib]
+name = "mq_strategy_common"
+crate-type = ["rlib", "cdylib"]
