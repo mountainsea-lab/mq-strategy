@@ -13,11 +13,13 @@ documentation.workspace = true
 repository.workspace = true
 homepage.workspace = true
 
-[dependencies]
-
 [lints]
 workspace = true
 
 [lib]
 name = "mq_sma_strategy"
 crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+
+

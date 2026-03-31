@@ -1,5 +1,5 @@
 [workspace.lints.rust]
-unsafe_code = "forbid"
+unsafe_code = "warn" # forbid
 
 [workspace]
 resolver = "2"
