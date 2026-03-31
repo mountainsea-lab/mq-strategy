@@ -17,7 +17,7 @@ homepage.workspace = true
 workspace = true
 
 [lib]
-name = "mq_strategy_common"
+name = "mq_strategy_indicators"
 crate-type = ["rlib", "cdylib"]
 
 [dependencies]

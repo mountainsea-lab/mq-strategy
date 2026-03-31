@@ -894,11 +894,14 @@ version = "0.1.0"
 dependencies = [
  "anyhow",
  "log",
+ "mq-strategy-common",
  "nautilus-common",
  "nautilus-core",
  "nautilus-model",
  "nautilus-trading",
  "rust_decimal",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
@@ -911,6 +914,7 @@ version = "0.1.0"
 dependencies = [
  "log",
  "nautilus-model",
+ "serde",
  "time",
 ]
 

@@ -58,6 +58,19 @@ pub struct ExecTester {
     pub(super) buy_stop_order: Option<OrderAny>,
     pub(super) sell_stop_order: Option<OrderAny>,
 }
+impl Strategy for ExecTester {
+    fn core(&self) -> &StrategyCore {
+        &self.core
+    }
+
+    fn core_mut(&mut self) -> &mut StrategyCore {
+        &mut self.core
+    }
+
+    fn external_order_claims(&self) -> Option<Vec<InstrumentId>> {
+        self.config.base.external_order_claims.clone()
+    }
+}
 
 impl Deref for ExecTester {
     type Target = DataActorCore;
@@ -104,15 +117,6 @@ impl DataActor for ExecTester {
                 self.config.subscribe_quotes || self.config.subscribe_trades;
         }
 
-        Ok(())
-    }
-
-    fn on_instrument(&mut self, instrument: &InstrumentAny) -> anyhow::Result<()> {
-        if instrument.id() == self.config.instrument_id && self.instrument.is_none() {
-            let id = instrument.id();
-            log::info!("Received instrument {id}, initializing...");
-            self.initialize_with_instrument(instrument.clone(), !self.preinitialized_market_data)?;
-        }
         Ok(())
     }
 
@@ -200,18 +204,22 @@ impl DataActor for ExecTester {
         Ok(())
     }
 
-    fn on_quote(&mut self, quote: &QuoteTick) -> anyhow::Result<()> {
-        if self.config.log_data {
-            log_info!("{quote:?}", color = LogColor::Cyan);
-        }
+    fn on_time_event(&mut self, event: &TimeEvent) -> anyhow::Result<()> {
+        Strategy::on_time_event(self, event)
+    }
 
-        self.maintain_orders(quote.bid_price, quote.ask_price);
+    fn on_instrument(&mut self, instrument: &InstrumentAny) -> anyhow::Result<()> {
+        if instrument.id() == self.config.instrument_id && self.instrument.is_none() {
+            let id = instrument.id();
+            log::info!("Received instrument {id}, initializing...");
+            self.initialize_with_instrument(instrument.clone(), !self.preinitialized_market_data)?;
+        }
         Ok(())
     }
 
-    fn on_trade(&mut self, trade: &TradeTick) -> anyhow::Result<()> {
+    fn on_book_deltas(&mut self, deltas: &OrderBookDeltas) -> anyhow::Result<()> {
         if self.config.log_data {
-            log_info!("{trade:?}", color = LogColor::Cyan);
+            log_info!("{deltas:?}", color = LogColor::Cyan);
         }
         Ok(())
     }
@@ -247,9 +255,18 @@ impl DataActor for ExecTester {
         Ok(())
     }
 
-    fn on_book_deltas(&mut self, deltas: &OrderBookDeltas) -> anyhow::Result<()> {
+    fn on_quote(&mut self, quote: &QuoteTick) -> anyhow::Result<()> {
         if self.config.log_data {
-            log_info!("{deltas:?}", color = LogColor::Cyan);
+            log_info!("{quote:?}", color = LogColor::Cyan);
+        }
+
+        self.maintain_orders(quote.bid_price, quote.ask_price);
+        Ok(())
+    }
+
+    fn on_trade(&mut self, trade: &TradeTick) -> anyhow::Result<()> {
+        if self.config.log_data {
+            log_info!("{trade:?}", color = LogColor::Cyan);
         }
         Ok(())
     }
@@ -273,24 +290,6 @@ impl DataActor for ExecTester {
             log_info!("{index_price:?}", color = LogColor::Cyan);
         }
         Ok(())
-    }
-
-    fn on_time_event(&mut self, event: &TimeEvent) -> anyhow::Result<()> {
-        Strategy::on_time_event(self, event)
-    }
-}
-
-impl Strategy for ExecTester {
-    fn core(&self) -> &StrategyCore {
-        &self.core
-    }
-
-    fn core_mut(&mut self) -> &mut StrategyCore {
-        &mut self.core
-    }
-
-    fn external_order_claims(&self) -> Option<Vec<InstrumentId>> {
-        self.config.base.external_order_claims.clone()
     }
 }
 

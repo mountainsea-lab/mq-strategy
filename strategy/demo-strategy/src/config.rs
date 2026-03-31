@@ -13,8 +13,8 @@
 //  limitations under the License.
 // -------------------------------------------------------------------------------------------------
 
-use std::num::NonZeroUsize;
-
+use anyhow::{Context, Result};
+use mq_strategy_common::helper::instrument_id_helper;
 use nautilus_core::Params;
 use nautilus_model::{
     enums::{BookType, OrderType, TimeInForce, TrailingOffsetType, TriggerType},
@@ -23,13 +23,19 @@ use nautilus_model::{
 };
 use nautilus_trading::strategy::StrategyConfig;
 use rust_decimal::Decimal;
+use serde::{Deserialize, Serialize};
+use serde_json::to_writer_pretty;
+use std::env;
+use std::fs::{File, create_dir_all};
+use std::num::NonZeroUsize;
 
 /// Configuration for the execution tester strategy.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExecTesterConfig {
     /// Base strategy configuration.
     pub base: StrategyConfig,
     /// Instrument ID to test.
+    #[serde(with = "instrument_id_helper")]
     pub instrument_id: InstrumentId,
     /// Order quantity.
     pub order_qty: Quantity,
@@ -466,5 +472,214 @@ impl Default for ExecTesterConfig {
             test_reject_reduce_only: false,
             can_unsubscribe: true,
         }
+    }
+}
+
+impl ExecTesterConfig {
+    /// 序列化配置并写入 JSON 文件
+    pub fn write_to_json(&self) -> Result<()> {
+        // 获取当前工作目录
+        let current_dir =
+            env::current_dir().context("Failed to get the current working directory")?;
+
+        // 构建目标路径 (策略模块目录下的 config 子目录)
+        let config_dir = current_dir
+            // .join("strategy")
+            // .join("demo-strategy")
+            .join("config");
+
+        // 如果目录不存在则创建
+        create_dir_all(&config_dir).context("Failed to create the config directory")?;
+
+        // 目标文件路径
+        let file_path = config_dir.join("default.json");
+
+        // 打开文件并序列化配置
+        let file = File::create(&file_path)
+            .context(format!("Failed to create file: {}", file_path.display()))?;
+        to_writer_pretty(file, &self).context("Failed to serialize the configuration into JSON")?;
+
+        Ok(())
+    }
+
+    // 从 JSON 文件读取配置
+    pub fn from_json(path: &str) -> Result<Self> {
+        let file = File::open(path).context(format!("Failed to open file: {}", path))?;
+        let config =
+            serde_json::from_reader(file).context("Failed to deserialize JSON configuration")?;
+        Ok(config)
+    }
+}
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use nautilus_model::identifiers::InstrumentId;
+    use serde_json::Value;
+    use std::fs::{File, remove_file};
+
+    // 测试 write_to_json 方法
+    #[test]
+    fn test_write_to_json() {
+        // 创建测试配置
+        let config = ExecTesterConfig {
+            base: StrategyConfig::default(),
+            instrument_id: InstrumentId::from("BTCUSDT-PERP.BINANCE"),
+            order_qty: Quantity::from("0.001"),
+            order_display_qty: None,
+            order_expire_time_delta_mins: None,
+            order_params: None,
+            client_id: None,
+            subscribe_quotes: true,
+            subscribe_trades: true,
+            subscribe_book: false,
+            book_type: BookType::L2_MBP,
+            book_depth: None,
+            book_interval_ms: NonZeroUsize::new(1000).unwrap(),
+            book_levels_to_print: 10,
+            open_position_on_start_qty: None,
+            open_position_time_in_force: TimeInForce::Gtc,
+            enable_limit_buys: true,
+            enable_limit_sells: true,
+            enable_stop_buys: false,
+            enable_stop_sells: false,
+            tob_offset_ticks: 500,
+            limit_time_in_force: None,
+            stop_order_type: OrderType::StopMarket,
+            stop_offset_ticks: 100,
+            stop_limit_offset_ticks: None,
+            stop_trigger_type: TriggerType::Default,
+            stop_time_in_force: None,
+            trailing_offset: None,
+            trailing_offset_type: TrailingOffsetType::BasisPoints,
+            enable_brackets: false,
+            batch_submit_limit_pair: false,
+            bracket_entry_order_type: OrderType::Limit,
+            bracket_offset_ticks: 500,
+            modify_orders_to_maintain_tob_offset: false,
+            modify_stop_orders_to_maintain_offset: false,
+            cancel_replace_orders_to_maintain_tob_offset: false,
+            cancel_replace_stop_orders_to_maintain_offset: false,
+            use_post_only: false,
+            use_quote_quantity: false,
+            emulation_trigger: None,
+            cancel_orders_on_stop: true,
+            close_positions_on_stop: true,
+            close_positions_time_in_force: None,
+            reduce_only_on_stop: true,
+            use_individual_cancels_on_stop: false,
+            use_batch_cancel_on_stop: false,
+            dry_run: false,
+            log_data: true,
+            test_reject_post_only: false,
+            test_reject_reduce_only: false,
+            can_unsubscribe: true,
+        };
+
+        // 获取当前工作目录，并构建目标路径
+        let current_dir = env::current_dir().unwrap();
+        let config_dir = current_dir.join("config");
+
+        // 创建目标路径的目录（如果不存在）
+        create_dir_all(&config_dir).unwrap();
+
+        // 调用 write_to_json 方法，写入配置到文件
+        config.write_to_json().unwrap();
+
+        // 构建目标文件路径
+        let file_path = config_dir.join("default.json");
+
+        // 检查文件是否存在
+        assert!(file_path.exists(), "The configuration file was not created");
+
+        // 读取生成的 JSON 文件并检查内容
+        let file = File::open(&file_path).unwrap();
+        let json: Value = serde_json::from_reader(file).unwrap();
+        //
+        // // 验证一些配置字段是否存在
+        assert_eq!(json["instrument_id"], "BTCUSDT-PERP.BINANCE");
+        assert_eq!(json["order_qty"], "0.001");
+        assert_eq!(json["subscribe_quotes"], true);
+
+        // 清理测试文件
+        remove_file(&file_path).unwrap();
+    }
+
+    // 测试 from_json 方法
+    #[test]
+    fn test_from_json() {
+        // 使用之前生成的默认配置文件进行测试
+        let current_dir = env::current_dir().unwrap();
+        let config_dir = current_dir.join("config");
+        let file_path = config_dir.join("default.json");
+
+        // 手动创建一个配置实例并保存到文件
+        let config = ExecTesterConfig {
+            base: StrategyConfig::default(),
+            instrument_id: InstrumentId::from("BTCUSDT-PERP.BINANCE"),
+            order_qty: Quantity::from("0.001"),
+            order_display_qty: None,
+            order_expire_time_delta_mins: None,
+            order_params: None,
+            client_id: None,
+            subscribe_quotes: true,
+            subscribe_trades: true,
+            subscribe_book: false,
+            book_type: BookType::L2_MBP,
+            book_depth: None,
+            book_interval_ms: NonZeroUsize::new(1000).unwrap(),
+            book_levels_to_print: 10,
+            open_position_on_start_qty: None,
+            open_position_time_in_force: TimeInForce::Gtc,
+            enable_limit_buys: true,
+            enable_limit_sells: true,
+            enable_stop_buys: false,
+            enable_stop_sells: false,
+            tob_offset_ticks: 500,
+            limit_time_in_force: None,
+            stop_order_type: OrderType::StopMarket,
+            stop_offset_ticks: 100,
+            stop_limit_offset_ticks: None,
+            stop_trigger_type: TriggerType::Default,
+            stop_time_in_force: None,
+            trailing_offset: None,
+            trailing_offset_type: TrailingOffsetType::BasisPoints,
+            enable_brackets: false,
+            batch_submit_limit_pair: false,
+            bracket_entry_order_type: OrderType::Limit,
+            bracket_offset_ticks: 500,
+            modify_orders_to_maintain_tob_offset: false,
+            modify_stop_orders_to_maintain_offset: false,
+            cancel_replace_orders_to_maintain_tob_offset: false,
+            cancel_replace_stop_orders_to_maintain_offset: false,
+            use_post_only: false,
+            use_quote_quantity: false,
+            emulation_trigger: None,
+            cancel_orders_on_stop: true,
+            close_positions_on_stop: true,
+            close_positions_time_in_force: None,
+            reduce_only_on_stop: true,
+            use_individual_cancels_on_stop: false,
+            use_batch_cancel_on_stop: false,
+            dry_run: false,
+            log_data: true,
+            test_reject_post_only: false,
+            test_reject_reduce_only: false,
+            can_unsubscribe: true,
+        };
+        config.write_to_json().unwrap();
+
+        // 从文件中读取配置
+        let loaded_config = ExecTesterConfig::from_json(file_path.to_str().unwrap()).unwrap();
+
+        // 验证读取的配置字段
+        assert_eq!(
+            loaded_config.instrument_id,
+            InstrumentId::from("BTCUSDT-PERP.BINANCE")
+        );
+        assert_eq!(loaded_config.order_qty, Quantity::from("0.001"));
+        assert_eq!(loaded_config.subscribe_quotes, true);
+
+        // 清理测试文件
+        remove_file(file_path).unwrap();
     }
 }
