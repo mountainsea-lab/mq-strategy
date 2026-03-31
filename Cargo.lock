@@ -912,8 +912,10 @@ version = "0.1.0"
 name = "mq-strategy-common"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "log",
  "nautilus-model",
+ "rust_decimal",
  "serde",
  "time",
 ]

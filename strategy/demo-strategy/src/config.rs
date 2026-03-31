@@ -14,7 +14,7 @@
 // -------------------------------------------------------------------------------------------------
 
 use anyhow::{Context, Result};
-use mq_strategy_common::helper::instrument_id_helper;
+use mq_strategy_common::helper::{instrument_id_helper, quantity_helper};
 use nautilus_core::Params;
 use nautilus_model::{
     enums::{BookType, OrderType, TimeInForce, TrailingOffsetType, TriggerType},
@@ -38,6 +38,7 @@ pub struct ExecTesterConfig {
     #[serde(with = "instrument_id_helper")]
     pub instrument_id: InstrumentId,
     /// Order quantity.
+    #[serde(with = "quantity_helper")]
     pub order_qty: Quantity,
     /// Display quantity for iceberg orders (None for full display, Some(0) for hidden).
     pub order_display_qty: Option<Quantity>,
@@ -601,7 +602,7 @@ mod tests {
         assert_eq!(json["subscribe_quotes"], true);
 
         // 清理测试文件
-        remove_file(&file_path).unwrap();
+        // remove_file(&file_path).unwrap();
     }
 
     // 测试 from_json 方法

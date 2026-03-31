@@ -13,16 +13,19 @@ documentation.workspace = true
 repository.workspace = true
 homepage.workspace = true
 
-[dependencies]
-nautilus-model = { workspace = true, features = ["stubs"] }
-
-time = {workspace = true}
-log = {workspace = true}
-serde = {workspace = true}
-
 [lints]
 workspace = true
 
 [lib]
 name = "mq_strategy_common"
 crate-type = ["rlib", "cdylib"]
+
+[dependencies]
+nautilus-model = { workspace = true, features = ["stubs"] }
+
+time = {workspace = true}
+log = {workspace = true}
+serde = {workspace = true}
+anyhow = {workspace = true}
+rust_decimal = {workspace = true}
+
