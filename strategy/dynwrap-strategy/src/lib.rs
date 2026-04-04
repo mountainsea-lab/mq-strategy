@@ -36,7 +36,10 @@ pub trait SConfigSerializable {
             env::current_dir().context("Failed to get the current working directory")?;
 
         // 获取自定义的路径或使用默认路径
-        let config_dir = current_dir.join("config");
+        let config_dir = current_dir
+            .join("strategy")
+            .join("demo-strategy")
+            .join("config");
 
         // 如果目录不存在则创建
         create_dir_all(&config_dir).context("Failed to create the config directory")?;
