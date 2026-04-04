@@ -21,13 +21,8 @@ name = "dynwrap_strategy"
 crate-type = ["rlib", "cdylib"]
 
 [dependencies]
-nautilus-core = { workspace = true }
 nautilus-model = { workspace = true, features = ["stubs"] }
 nautilus-common = { workspace = true }
 nautilus-trading = { workspace = true }
 
-rust_decimal = { workspace = true, features = ["serde"] }
 anyhow = { workspace = true }
-log = { workspace = true }
-serde_json = { workspace = true }
-serde = { version = "1.0.228", features = ["derive"] }

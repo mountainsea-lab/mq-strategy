@@ -521,14 +521,9 @@ name = "dynwrap-strategy"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "log",
  "nautilus-common",
- "nautilus-core",
  "nautilus-model",
  "nautilus-trading",
- "rust_decimal",
- "serde",
- "serde_json",
 ]
 
 [[package]]
