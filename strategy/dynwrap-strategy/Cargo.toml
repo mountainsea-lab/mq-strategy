@@ -1,24 +1,23 @@
 [package]
-name = "mq-demo-strategy"
-readme = ""
+name = "dynwrap-strategy"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
 authors.workspace = true
 license.workspace = true
-description = "nautilus trader tester demo strategy"
+readme.workspace = true
+description.workspace = true
 categories.workspace = true
 keywords.workspace = true
 documentation.workspace = true
 repository.workspace = true
 homepage.workspace = true
 
-
 [lints]
 workspace = true
 
 [lib]
-name = "mq_demo_strategy"
+name = "dynwrap_strategy"
 crate-type = ["rlib", "cdylib"]
 
 [dependencies]
@@ -27,12 +26,8 @@ nautilus-model = { workspace = true, features = ["stubs"] }
 nautilus-common = { workspace = true }
 nautilus-trading = { workspace = true }
 
-mq-strategy-common = { workspace = true }
-dynwrap-strategy = { workspace = true }
-
 rust_decimal = { workspace = true, features = ["serde"] }
 anyhow = { workspace = true }
 log = { workspace = true }
 serde_json = { workspace = true }
 serde = { version = "1.0.228", features = ["derive"] }
-

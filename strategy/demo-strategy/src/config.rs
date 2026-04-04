@@ -14,6 +14,7 @@
 // -------------------------------------------------------------------------------------------------
 
 use anyhow::{Context, Result};
+use dynwrap_strategy::SConfig;
 use mq_strategy_common::helper::{instrument_id_helper, quantity_helper};
 use nautilus_core::Params;
 use nautilus_model::{
@@ -682,5 +683,11 @@ mod tests {
 
         // 清理测试文件
         remove_file(file_path).unwrap();
+    }
+}
+
+impl SConfig for ExecTesterConfig {
+    fn base(&self) -> &StrategyConfig {
+        &self.base
     }
 }

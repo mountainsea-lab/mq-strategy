@@ -517,6 +517,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "dynwrap-strategy"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "log",
+ "nautilus-common",
+ "nautilus-core",
+ "nautilus-model",
+ "nautilus-trading",
+ "rust_decimal",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "either"
 version = "1.15.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -893,7 +908,7 @@ name = "mq-demo-strategy"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "libc",
+ "dynwrap-strategy",
  "log",
  "mq-strategy-common",
  "nautilus-common",

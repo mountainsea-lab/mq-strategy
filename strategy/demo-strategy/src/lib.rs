@@ -7,7 +7,6 @@ pub mod config;
 pub mod strategy;
 
 /// 暴露一个工厂函数来实例化策略
-#[allow(unsafe_code)]
 #[unsafe(no_mangle)]
 pub fn create_strategy(config_path: &str) -> Result<Box<dyn Strategy>> {
     let config = ExecTesterConfig::from_json(config_path)?;
