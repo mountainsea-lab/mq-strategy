@@ -2,7 +2,6 @@ use crate::config::ExecTesterConfig;
 use crate::strategy::ExecTester;
 use anyhow::Result;
 use dynwrap_strategy::{SConfigSerializable, StrategyExt};
-use nautilus_trading::Strategy;
 
 pub mod config;
 pub mod strategy;

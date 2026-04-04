@@ -74,7 +74,11 @@ impl Strategy for ExecTester {
     }
 
     fn external_order_claims(&self) -> Option<Vec<InstrumentId>> {
-        self.config.base.external_order_claims.clone()
+        self.config
+            .base
+            .strategy_config
+            .external_order_claims
+            .clone()
     }
 }
 
@@ -304,7 +308,7 @@ impl ExecTester {
     #[must_use]
     pub fn new(config: ExecTesterConfig) -> Self {
         Self {
-            core: StrategyCore::new(config.base.clone()),
+            core: StrategyCore::new(config.base.strategy_config.clone()),
             config,
             instrument: None,
             price_offset: None,

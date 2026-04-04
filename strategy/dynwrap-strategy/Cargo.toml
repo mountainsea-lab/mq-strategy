@@ -25,6 +25,8 @@ nautilus-model = { workspace = true, features = ["stubs"] }
 nautilus-common = { workspace = true }
 nautilus-trading = { workspace = true }
 
+mq-strategy-common = { workspace = true }
+
 serde = {  workspace = true }
 serde_json = { workspace = true }
 anyhow = { workspace = true }

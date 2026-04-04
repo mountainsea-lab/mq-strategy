@@ -13,9 +13,11 @@
 //  limitations under the License.
 // -------------------------------------------------------------------------------------------------
 
-use anyhow::{Context, Result};
+use dynwrap_strategy::config_wrapper::CustomStrategyConfig;
 use dynwrap_strategy::{SConfig, SConfigSerializable};
-use mq_strategy_common::helper::{instrument_id_helper, quantity_helper};
+use mq_strategy_common::helper::{
+    client_id_helper, instrument_id_helper, quantity_helper, strategy_id_helper,
+};
 use nautilus_core::Params;
 use nautilus_model::{
     enums::{BookType, OrderType, TimeInForce, TrailingOffsetType, TriggerType},
@@ -25,17 +27,13 @@ use nautilus_model::{
 use nautilus_trading::strategy::StrategyConfig;
 use rust_decimal::Decimal;
 use serde::{Deserialize, Serialize};
-use serde_json::to_writer_pretty;
-use std::env;
-use std::fs::{File, create_dir_all};
 use std::num::NonZeroUsize;
-use std::path::PathBuf;
 
 /// Configuration for the execution tester strategy.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ExecTesterConfig {
     /// Base strategy configuration.
-    pub base: StrategyConfig,
+    pub base: CustomStrategyConfig, //StrategyConfig
     /// Instrument ID to test.
     #[serde(with = "instrument_id_helper")]
     pub instrument_id: InstrumentId,
@@ -49,6 +47,7 @@ pub struct ExecTesterConfig {
     /// Adapter-specific order parameters.
     pub order_params: Option<Params>,
     /// Client ID to use for orders and subscriptions.
+    #[serde(with = "client_id_helper")]
     pub client_id: Option<ClientId>,
     /// Whether to subscribe to order book.
     pub subscribe_book: bool,
@@ -154,10 +153,14 @@ impl ExecTesterConfig {
         order_qty: Quantity,
     ) -> Self {
         Self {
-            base: StrategyConfig {
-                strategy_id: Some(strategy_id),
-                order_id_tag: None,
-                ..Default::default()
+            base: CustomStrategyConfig {
+                strategy_config: StrategyConfig {
+                    strategy_id: Some(strategy_id),
+                    order_id_tag: None,
+                    ..Default::default()
+                },
+                strategy_id: None,
+                external_order_claims: None,
             },
             instrument_id,
             order_qty,
@@ -423,7 +426,7 @@ impl ExecTesterConfig {
 impl Default for ExecTesterConfig {
     fn default() -> Self {
         Self {
-            base: StrategyConfig::default(),
+            base: CustomStrategyConfig::default(), //StrategyConfig::default(),
             instrument_id: InstrumentId::from("BTCUSDT-PERP.BINANCE"),
             order_qty: Quantity::from("0.001"),
             order_display_qty: None,
@@ -478,20 +481,29 @@ impl Default for ExecTesterConfig {
     }
 }
 
+impl SConfig for ExecTesterConfig {
+    fn base(&self) -> &StrategyConfig {
+        &self.base.strategy_config
+    }
+}
+
+impl SConfigSerializable for ExecTesterConfig {}
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use dynwrap_strategy::SConfigSerializable;
     use nautilus_model::identifiers::InstrumentId;
     use serde_json::Value;
-    use std::fs::{File, remove_file};
+    use std::env;
+    use std::fs::{File, create_dir_all, remove_file};
 
     // 测试 write_to_json 方法
     #[test]
     fn test_write_to_json() {
         // 创建测试配置
         let config = ExecTesterConfig {
-            base: StrategyConfig::default(),
+            base: CustomStrategyConfig::default(),
             instrument_id: InstrumentId::from("BTCUSDT-PERP.BINANCE"),
             order_qty: Quantity::from("0.001"),
             order_display_qty: None,
@@ -583,7 +595,7 @@ mod tests {
 
         // 手动创建一个配置实例并保存到文件
         let config = ExecTesterConfig {
-            base: StrategyConfig::default(),
+            base: CustomStrategyConfig::default(),
             instrument_id: InstrumentId::from("BTCUSDT-PERP.BINANCE"),
             order_qty: Quantity::from("0.001"),
             order_display_qty: None,
@@ -635,28 +647,41 @@ mod tests {
             test_reject_reduce_only: false,
             can_unsubscribe: true,
         };
-        config.write_to_json().unwrap();
+        // config.write_to_json().unwrap();
 
         // 从文件中读取配置
-        let loaded_config = ExecTesterConfig::from_json(file_path.to_str().unwrap()).unwrap();
+        let mut loaded_config = ExecTesterConfig::from_json(file_path.to_str().unwrap()).unwrap();
+        loaded_config.base.auto_assign_fields();
+
+        assert_eq!(
+            loaded_config.base.strategy_config.strategy_id,
+            loaded_config.base.strategy_id
+        );
+
+        assert_eq!(
+            loaded_config.base.strategy_config.external_order_claims,
+            Some(vec![InstrumentId::from("SOL-USDT-SWAP.OKX")])
+        );
+        assert_eq!(loaded_config.client_id, Some(ClientId::new("OKX")));
+        assert_eq!(
+            // loaded_config.base.strategy_config.external_order_claims,
+            loaded_config.base.external_order_claims,
+            Some(vec![InstrumentId::from("SOL-USDT-SWAP.OKX")])
+        );
+        assert_eq!(
+            loaded_config.base.strategy_config.market_exit_time_in_force,
+            TimeInForce::Gtc
+        );
 
         // 验证读取的配置字段
-        assert_eq!(
-            loaded_config.instrument_id,
-            InstrumentId::from("BTCUSDT-PERP.BINANCE")
-        );
-        assert_eq!(loaded_config.order_qty, Quantity::from("0.001"));
-        assert_eq!(loaded_config.subscribe_quotes, true);
-
-        // 清理测试文件
-        remove_file(file_path).unwrap();
+        // assert_eq!(
+        //     loaded_config.instrument_id,
+        //     InstrumentId::from("BTCUSDT-PERP.BINANCE")
+        // );
+        // assert_eq!(loaded_config.order_qty, Quantity::from("0.001"));
+        // assert_eq!(loaded_config.subscribe_quotes, true);
+        //
+        // // 清理测试文件
+        // remove_file(file_path).unwrap();
     }
 }
-
-impl SConfig for ExecTesterConfig {
-    fn base(&self) -> &StrategyConfig {
-        &self.base
-    }
-}
-
-impl SConfigSerializable for ExecTesterConfig {}

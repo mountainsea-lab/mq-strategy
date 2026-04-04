@@ -6,6 +6,7 @@ use std::env;
 use std::fmt::Debug;
 use std::fs::{File, create_dir_all};
 
+pub mod config_wrapper;
 pub mod strategy_wrapper;
 
 pub trait StrategyExt: Strategy {
