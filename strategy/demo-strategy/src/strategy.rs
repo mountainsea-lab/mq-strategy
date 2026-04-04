@@ -15,6 +15,8 @@
 
 use std::ops::{Deref, DerefMut};
 
+use super::config::ExecTesterConfig;
+use dynwrap_strategy::{SConfig, StrategyExt};
 use nautilus_common::{
     actor::{DataActor, DataActorCore},
     enums::LogColor,
@@ -33,8 +35,6 @@ use nautilus_model::{
 };
 use nautilus_trading::strategy::{Strategy, StrategyCore};
 use rust_decimal::{Decimal, prelude::ToPrimitive};
-
-use super::config::ExecTesterConfig;
 
 /// An execution tester strategy for live testing order execution functionality.
 ///
@@ -58,6 +58,12 @@ pub struct ExecTester {
     pub(super) buy_stop_order: Option<OrderAny>,
     pub(super) sell_stop_order: Option<OrderAny>,
 }
+impl StrategyExt for ExecTester {
+    fn s_config(&self) -> Box<dyn SConfig> {
+        Box::new(self.config.clone()) // Assuming `config` is a field in ExecTester that implements `SConfig`
+    }
+}
+
 impl Strategy for ExecTester {
     fn core(&self) -> &StrategyCore {
         &self.core
