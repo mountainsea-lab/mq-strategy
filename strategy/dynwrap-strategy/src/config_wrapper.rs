@@ -1,9 +1,7 @@
 use mq_strategy_common::helper::{instrument_id_opvec_helper, strategy_id_helper};
 use nautilus_model::identifiers::{InstrumentId, StrategyId};
 use nautilus_trading::StrategyConfig;
-use serde::de::Visitor;
-use serde::{Deserialize, Deserializer, Serialize};
-use std::fmt;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct CustomStrategyConfig {

@@ -15,9 +15,7 @@
 
 use dynwrap_strategy::config_wrapper::CustomStrategyConfig;
 use dynwrap_strategy::{SConfig, SConfigSerializable};
-use mq_strategy_common::helper::{
-    client_id_helper, instrument_id_helper, quantity_helper, strategy_id_helper,
-};
+use mq_strategy_common::helper::{client_id_helper, instrument_id_helper, quantity_helper};
 use nautilus_core::Params;
 use nautilus_model::{
     enums::{BookType, OrderType, TimeInForce, TrailingOffsetType, TriggerType},
