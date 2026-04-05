@@ -31,3 +31,5 @@ serde = {  workspace = true }
 serde_json = { workspace = true }
 anyhow = { workspace = true }
 log = { workspace = true }
+# -- Load Dyn Strategy
+libloading = "0.8"

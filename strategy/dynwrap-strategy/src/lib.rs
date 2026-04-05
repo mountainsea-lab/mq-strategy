@@ -8,6 +8,12 @@ use std::fs::{File, create_dir_all};
 
 pub mod config_wrapper;
 pub mod strategy_wrapper;
+pub mod strategy_wrapper_ffi;
+
+pub use strategy_wrapper_ffi::StrategyVTable;
+
+pub use strategy_wrapper_ffi::DynStrategyWrapper;
+mod macros;
 
 pub trait StrategyExt: Strategy {
     fn s_config(&self) -> Box<dyn SConfig>;
