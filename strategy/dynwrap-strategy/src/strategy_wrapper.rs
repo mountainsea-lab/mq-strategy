@@ -22,10 +22,10 @@ pub struct DynStrategyWrapper {
 impl DynStrategyWrapper {
     // 创建包装器的构造函数
     pub fn new(strategy: Box<dyn StrategyExt>) -> Result<Self> {
-        if strategy.config.actor_id.is_none() {
-            return Err(anyhow::anyhow!("Strategy is None").into());
-        }
         info!("Creating DynStrategyWrapper");
+        // Log strategy core info to ensure it is properly initialized
+        let core = strategy.core();
+        info!("Strategy core accessed: {:?}", core);
         Ok(DynStrategyWrapper { strategy })
     }
 }
