@@ -11,8 +11,10 @@ use nautilus_model::orderbook::OrderBook;
 use nautilus_trading::{Strategy, StrategyCore};
 use std::fmt;
 use std::ops::{Deref, DerefMut};
+use log::info;
 
 // 包装器结构体，持有一个 `Box<dyn Strategy>`
+#[repr(C)]
 pub struct DynStrategyWrapper {
     strategy: Box<dyn StrategyExt>,
 }
@@ -20,6 +22,10 @@ pub struct DynStrategyWrapper {
 impl DynStrategyWrapper {
     // 创建包装器的构造函数
     pub fn new(strategy: Box<dyn StrategyExt>) -> Result<Self> {
+        if strategy.config.actor_id.is_none() {
+            return Err(anyhow::anyhow!("Strategy is None").into());
+        }
+        info!("Creating DynStrategyWrapper");
         Ok(DynStrategyWrapper { strategy })
     }
 }
@@ -60,6 +66,7 @@ impl StrategyExt for DynStrategyWrapper {
 // 实现 Strategy trait，所有方法转发到实际的策略
 impl Strategy for DynStrategyWrapper {
     fn core(&self) -> &StrategyCore {
+        info!("Accessing core of strategy");
         self.strategy.core()
     }
 

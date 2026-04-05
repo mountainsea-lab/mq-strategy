@@ -521,6 +521,7 @@ name = "dynwrap-strategy"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "log",
  "mq-strategy-common",
  "nautilus-common",
  "nautilus-model",

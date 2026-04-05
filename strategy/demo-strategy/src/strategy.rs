@@ -45,6 +45,7 @@ use rust_decimal::{Decimal, prelude::ToPrimitive};
 /// **WARNING**: This strategy has no alpha advantage whatsoever.
 /// It is not intended to be used for live trading with real money.
 #[derive(Debug)]
+#[repr(C)]
 pub struct ExecTester {
     pub(super) core: StrategyCore,
     pub(super) config: ExecTesterConfig,
