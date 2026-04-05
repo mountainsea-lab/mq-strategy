@@ -8,7 +8,7 @@ pub mod strategy;
 
 /// 暴露一个工厂函数来实例化策略
 #[unsafe(no_mangle)]
-pub fn create_strategy(config_path: &str) -> Result<Box<dyn StrategyExt>> {
+pub extern "C" fn create_strategy(config_path: &str) -> Result<Box<dyn StrategyExt>> {
     let mut config = ExecTesterConfig::from_json(config_path)?;
     config.base.auto_assign_fields();
     Ok(Box::new(ExecTester::new(config)))

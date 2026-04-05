@@ -1,5 +1,6 @@
 use crate::{SConfig, StrategyExt};
 use anyhow::Result;
+use log::info;
 use nautilus_common::actor::{DataActor, DataActorCore};
 use nautilus_common::timer::TimeEvent;
 use nautilus_model::data::{
@@ -9,9 +10,9 @@ use nautilus_model::identifiers::InstrumentId;
 use nautilus_model::instruments::InstrumentAny;
 use nautilus_model::orderbook::OrderBook;
 use nautilus_trading::{Strategy, StrategyCore};
+use std::any::Any;
 use std::fmt;
 use std::ops::{Deref, DerefMut};
-use log::info;
 
 // 包装器结构体，持有一个 `Box<dyn Strategy>`
 #[repr(C)]
@@ -21,11 +22,34 @@ pub struct DynStrategyWrapper {
 
 impl DynStrategyWrapper {
     // 创建包装器的构造函数
+    // pub fn new(strategy: Box<dyn StrategyExt>) -> Result<Self> {
+    //     info!("Creating DynStrategyWrapper");
+    //     // Log strategy core info to ensure it is properly initialized
+    //     let core = strategy.core();
+    //     info!("Strategy core accessed: {:?}", core);
+    //     Ok(DynStrategyWrapper { strategy })
+    // }
     pub fn new(strategy: Box<dyn StrategyExt>) -> Result<Self> {
         info!("Creating DynStrategyWrapper");
-        // Log strategy core info to ensure it is properly initialized
+
+        // 检查 trait object 的类型 ID
+        use std::any::TypeId;
+        let type_id = (*strategy).type_id();
+        info!("Strategy type_id: {:?}", type_id);
+
+        // 检查 vtable 前几个函数指针
+        let vtable = unsafe {
+            let ptr = &*strategy as *const dyn Strategy;
+            let fat_ptr = ptr as *const *const ();
+            let vtable_ptr = *fat_ptr.add(1); // 胖指针的第二部分是 vtable
+            vtable_ptr as usize
+        };
+        info!("Strategy vtable address: 0x{:x}", vtable);
+
+        // 尝试调用 core()
         let core = strategy.core();
         info!("Strategy core accessed: {:?}", core);
+
         Ok(DynStrategyWrapper { strategy })
     }
 }
