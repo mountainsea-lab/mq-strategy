@@ -10,9 +10,10 @@ use nautilus_model::identifiers::InstrumentId;
 use nautilus_model::instruments::InstrumentAny;
 use nautilus_model::orderbook::OrderBook;
 use nautilus_trading::{Strategy, StrategyCore};
-use std::ffi::{CStr, CString, c_void};
+use std::ffi::{CStr, CString};
 use std::fmt;
 use std::ops::{Deref, DerefMut};
+use std::os::raw::{c_char, c_int, c_void};
 use std::path::Path;
 
 // ============================================================================
@@ -84,7 +85,7 @@ impl DynStrategyWrapper {
             let library = Library::new(lib_path).context("Failed to load dynamic library")?;
 
             // 获取创建函数
-            let create_strategy: Symbol<unsafe extern "C" fn(*const i8) -> *mut c_void> = library
+            let create_strategy: Symbol<extern "C" fn(*const c_char) -> *mut c_void> = library
                 .get(b"create_strategy")
                 .context("Failed to get create_strategy symbol")?;
 
@@ -98,22 +99,19 @@ impl DynStrategyWrapper {
                 CString::new(config_path).context("Config path contains null byte")?;
 
             // 创建策略实例
-            let ptr = create_strategy(config_path_cstr.as_ptr());
+            let ptr = create_strategy(config_path_cstr.as_ptr() as *const c_char);
             if ptr.is_null() {
                 anyhow::bail!("create_strategy returned null");
             }
 
             // 获取 vtable
-            let vtable = *get_vtable();
+            let vtable = get_vtable();
 
-            info!(
-                "Strategy loaded successfully, ptr: {:?}, vtable: {:#?}",
-                ptr, vtable
-            );
+            info!("Strategy loaded successfully, ptr: {:?}", ptr);
 
             Ok(Self {
                 ptr,
-                vtable,
+                vtable: *vtable,
                 library,
             })
         }

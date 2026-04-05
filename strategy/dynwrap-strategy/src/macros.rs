@@ -1,5 +1,3 @@
-// dynwrap-strategy/src/macros.rs
-
 /// 为具体策略生成 vtable 函数和导出
 #[macro_export]
 macro_rules! export_strategy {
@@ -8,8 +6,8 @@ macro_rules! export_strategy {
         config_type: $config:ty,
         $(config_process: $process_fn:expr,)?
     ) => {
-        use std::ffi::{c_void, CStr};
-
+        use std::ffi::CStr;
+        use std::os::raw::{c_char, c_int, c_void};
         // ========== VTable 函数实现（不需要 no_mangle）==========
 
         pub extern "C" fn strategy_destroy(ptr: *mut c_void) {
@@ -214,7 +212,7 @@ macro_rules! export_strategy {
         }
 
         #[unsafe(no_mangle)]
-        pub extern "C" fn create_strategy(config_path: *const i8) -> *mut c_void {
+        pub extern "C" fn create_strategy(config_path: *const c_char) -> *mut c_void {
             unsafe {
                 let config_path = CStr::from_ptr(config_path)
                     .to_str()
