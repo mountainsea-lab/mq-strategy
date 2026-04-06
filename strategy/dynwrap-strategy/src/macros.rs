@@ -218,7 +218,7 @@ macro_rules! export_strategy {
                     .to_str()
                     .expect("Invalid config path");
 
-                let config = <$config as $crate::SConfigSerializable>::from_json(config_path)
+                let config = <$config as $crate::SConfigSerializable>::from_file(config_path)
                     .expect("Failed to parse config");
 
                 // 可选的配置处理
