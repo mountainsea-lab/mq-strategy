@@ -561,11 +561,11 @@ mod tests {
         // 创建目标路径的目录（如果不存在）
         create_dir_all(&config_dir).unwrap();
 
-        // 调用 write_to_json 方法，写入配置到文件
-        config.write_to_json().unwrap();
-
         // 构建目标文件路径
         let file_path = config_dir.join("default.json");
+
+        // 调用 write_to_file 方法，写入配置到文件
+        config.write_to_file(file_path)?;
 
         // 检查文件是否存在
         assert!(file_path.exists(), "The configuration file was not created");
@@ -648,7 +648,7 @@ mod tests {
         // config.write_to_json().unwrap();
 
         // 从文件中读取配置
-        let mut loaded_config = ExecTesterConfig::from_json(file_path.to_str().unwrap()).unwrap();
+        let mut loaded_config = ExecTesterConfig::from_file(file_path.to_str().unwrap()).unwrap();
         loaded_config.base.auto_assign_fields();
 
         assert_eq!(

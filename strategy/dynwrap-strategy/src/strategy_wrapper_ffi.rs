@@ -294,7 +294,7 @@ impl DataActor for DynStrategyWrapper {
     }
 
     fn on_index_price(&mut self, index_price: &IndexPriceUpdate) -> Result<()> {
-        let ret = unsafe { (self.vtable.on_index_price)(self.ptr, index_price as *const _) };
+        let ret = (self.vtable.on_index_price)(self.ptr, index_price as *const _);
         if ret == 0 {
             Ok(())
         } else {
