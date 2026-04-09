@@ -9,7 +9,7 @@ members = [
     "crates/indicators", "strategy/demo-strategy", "strategy/dynwrap-strategy",
     # -- Strategys
     "strategy/sma-strategy"
-]
+, "strategy/staticwrap-strategy"]
 
 [workspace.package]
 version = "0.1.0"
