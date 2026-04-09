@@ -1,5 +1,5 @@
-mod types;
-mod wrapper;
+pub mod types;
+pub mod wrapper;
 
 pub fn add(left: u64, right: u64) -> u64 {
     left + right
