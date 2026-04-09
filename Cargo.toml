@@ -6,7 +6,7 @@ resolver = "2"
 members = [
     "crates/common",
     # -- Custom Indicators
-    "crates/indicators", "crates/indicators-private", "strategy/demo-strategy", "strategy/dynwrap-strategy",
+    "crates/indicators", "strategy/demo-strategy", "strategy/dynwrap-strategy",
     # -- Strategys
     "strategy/sma-strategy"
 , "strategy/staticwrap-strategy"]
